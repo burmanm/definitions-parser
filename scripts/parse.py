@@ -36,13 +36,13 @@ class Generator():
                         # Collection types do not interest us in this reverse operation
                         continue
 
-                    # default_value = values.dict.get(Keyword('default_value'))
+                    default_value = values.dict.get(Keyword('default_value'))
                     static_constant = values.dict.get(Keyword('static_constant'))
                     constant = static_constant if static_constant is not None else values.dict.get(Keyword('constant'))
 
                     # -ea, -agentlib and other special debug params are not interesting in our environment at this point
                     if constant is not None and (constant.startswith('-D') or constant.startswith('-X')):
-                        metaVal = {"name": k.name, "edn_type": edn_type}
+                        metaVal = {"name": k.name, "edn_type": edn_type, "default_value": default_value}
 
                         try: 
                             equality_operator_index = constant.index('=')
@@ -75,7 +75,11 @@ class Generator():
             for k, v in reverse_map.items():
                 name = v['name']
                 builderType = v['edn_type']
-                generated.write(F'"{k}": {{Key: "{name}", BuilderType: "{builderType}"}}, \n')
+                generated.write(F'"{k}": {{Key: "{name}", BuilderType: "{builderType}"')
+                default_value = v['default_value']
+                if default_value is not None:
+                    generated.write(F', DefaultValueString: "{default_value}"')
+                generated.write('}, \n')
             generated.write('}\n')
             generated.write(F"""
             const(

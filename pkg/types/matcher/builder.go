@@ -11,13 +11,14 @@ type MetadataMatcher struct {
 }
 
 // Parser returns the YAML key + YAML value. If key is empty, add the string to the additional-jvm-options
-func (m MetadataMatcher) Parser(optionsKey, input string) (string, string) {
+// Returned values are key, value, default_value
+func (m MetadataMatcher) Parser(optionsKey, input string) (string, string, string) {
 	// We need to parse the input.. imagine:
 	// -Xmx4G => metadata + value
 	// -Djava.net.preferIPv4Stack=true => metadata + true
 	found, meta, value := prefixParser(optionsKey, input)
 	if found {
-		return meta.Key, value
+		return meta.Key, value, meta.DefaultValueString
 	}
 
 	// Split to value and key
@@ -28,17 +29,17 @@ func (m MetadataMatcher) Parser(optionsKey, input string) (string, string) {
 	if meta, found := metaMap[key]; found {
 		if len(parts) < 2 && meta.BuilderType == "boolean" {
 			// Existence implies inclusion
-			return meta.Key, "True"
+			return meta.Key, "True", meta.DefaultValueString
 		} else if len(parts) < 2 {
-			// Invalid input
-			return meta.Key, ""
+			// Invalid input - validation issue?
+			return meta.Key, "", meta.DefaultValueString
 		}
 
-		return meta.Key, parts[1]
+		return meta.Key, parts[1], meta.DefaultValueString
 	}
 
-	// Key not found
-	return "", ""
+	// Key not found - validation issue?
+	return "", "", ""
 }
 
 func prefixParser(optionsKey, input string) (bool, *types.Metadata, string) {
