@@ -37,6 +37,10 @@ class Generator():
                         continue
 
                     default_value = values.dict.get(Keyword('default_value'))
+
+                    if edn_type == 'boolean':
+                        default_value = str(default_value).lower()
+
                     static_constant = values.dict.get(Keyword('static_constant'))
                     constant = static_constant if static_constant is not None else values.dict.get(Keyword('constant'))
 
