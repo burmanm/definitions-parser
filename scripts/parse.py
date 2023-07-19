@@ -14,15 +14,16 @@ class Generator():
     _target_dir = 'pkg/types/generated'
     _maps = []
 
-    def parse_file(self, filepath: str):
+    def parse_file(self, filepath: str, serverType: str):
         file = Path(filepath)
-        key_name = file.name[:file.name.index('dse') - 1]
+        key_name = file.name[:file.name.index(serverType) - 1]
         types_name = key_name.replace('-', '_')
         config_file = Path(file).read_text()
         input = ednloads(config_file)
 
         regexp_prefixes = []
         reverse_map = {}
+        proper_map = {}
 
         if isinstance(input, ImmutableDict):
             props = input.dict.get(Keyword("properties"))
@@ -36,28 +37,32 @@ class Generator():
                         # Collection types do not interest us in this reverse operation
                         continue
 
-                    default_value = values.dict.get(Keyword('default_value'))
-
-                    if edn_type == 'boolean':
-                        default_value = str(default_value).lower()
-
                     static_constant = values.dict.get(Keyword('static_constant'))
-                    constant = static_constant if static_constant is not None else values.dict.get(Keyword('constant'))
+                    constant_key = static_constant if static_constant is not None else values.dict.get(Keyword('constant'))
+                    constant = values.dict.get(Keyword('constant'))
 
                     # -ea, -agentlib and other special debug params are not interesting in our environment at this point
-                    if constant is not None and (constant.startswith('-D') or constant.startswith('-X')):
-                        metaVal = {"name": k.name, "edn_type": edn_type, "default_value": default_value}
+                    if constant_key is not None and (constant_key.startswith('-D') or constant_key.startswith('-X')):
+                        metaVal = {"name": k.name, "edn_type": edn_type, "suppress": False}
 
-                        try: 
-                            equality_operator_index = constant.index('=')
-                            constant = constant[:equality_operator_index]
-                        except ValueError:
-                            pass
+                        if static_constant is not None:
+                            metaVal["static_constant"] = static_constant
+
+                        if constant is not None:
+                            metaVal["constant"] = constant
+
+                        # try:
+                        #     equality_operator_index = constant.index('=')
+                        #     constant = constant[:equality_operator_index]
+                        # except ValueError:
+                        #     pass
 
                         if values.dict.get(Keyword('suppress-equal-sign')):
                             # Special values, such as Xmx, Xss, Xms etc
                             regexp_prefixes.append(F'^{constant}')
+                            metaVal['suppress'] = True
 
+                        proper_map[k.name] = metaVal
                         reverse_map[constant] = metaVal
 
 
@@ -73,17 +78,27 @@ class Generator():
             import(
                     "github.com/burmanm/definitions-parser/pkg/types"
             )
-            """)
+
+           """)
 
             generated.write(F'var {types_name} = map[string]types.Metadata{{\n')
             for k, v in reverse_map.items():
+                builder_type = self.get_builder_type(v['edn_type'])
                 name = v['name']
-                builderType = v['edn_type']
-                generated.write(F'"{k}": {{Key: "{name}", BuilderType: "{builderType}"')
-                default_value = v['default_value']
-                if default_value is not None:
-                    generated.write(F', DefaultValueString: "{default_value}"')
+                generated.write(F'"{k}": {{Key: "{name}", BuilderType: {builder_type}')
                 generated.write('}, \n')
+            generated.write('}\n')
+
+            generated.write(F'var {types_name}Prefix = map[string]types.Metadata{{\n')
+            for k, v in proper_map.items():
+                builder_type = self.get_builder_type(v['edn_type'])
+                constant = v.get('constant')
+                static_constant = v.get('static_constant')
+                name = static_constant if static_constant is not None else constant
+
+                value_type = "types.StaticConstant" if static_constant is not None else "types.SuppressedValue" if v['suppress'] else "types.StringValue"
+                generated.write(F'"{k}": {{Key: "{name}", BuilderType: {builder_type}, ValueType: {value_type} }},\n')
+
             generated.write('}\n')
             generated.write(F"""
             const(
@@ -92,6 +107,18 @@ class Generator():
             generated.write('"\n)')
 
         self._maps.append(key_name)
+
+    def get_builder_type(self, edn_type: str):
+        match edn_type:
+            case 'string':
+                builder_type = 'StringBuilder'
+            case 'boolean':
+                builder_type = 'BooleanBuilder'
+            case 'int':
+                builder_type = 'IntegerBuilder'
+            case _:
+                builder_type = 'None'
+        return "types." + builder_type
 
     def write_file_header(self, writer: TextIOWrapper):
             writer.write("""
@@ -109,7 +136,8 @@ class Generator():
                     "regexp"
                     "github.com/burmanm/definitions-parser/pkg/types"
             )
-            """)
+
+           """)
 
             generated.write("var regexps = map[string]*regexp.Regexp{")
             for name in self._maps:
@@ -140,7 +168,10 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         cass_definitions_dir = sys.argv[1]
 
-    gen.parse_file(F'{cass_definitions_dir}/resources/jvm11-server-options/dse/jvm11-server-options-dse-6.8.0.edn')
-    gen.parse_file(F'{cass_definitions_dir}/resources/jvm8-server-options/dse/jvm8-server-options-dse-6.8.0.edn')
-    gen.parse_file(F'{cass_definitions_dir}/resources/jvm-server-options/dse/jvm-server-options-dse-6.8.0.edn')
+    # gen.parse_file(F'{cass_definitions_dir}/resources/jvm11-server-options/dse/jvm11-server-options-dse-6.8.0.edn')
+    # gen.parse_file(F'{cass_definitions_dir}/resources/jvm8-server-options/dse/jvm8-server-options-dse-6.8.0.edn')
+    # gen.parse_file(F'{cass_definitions_dir}/resources/jvm-server-options/dse/jvm-server-options-dse-6.8.0.edn')
+
+    gen.parse_file(F'{cass_definitions_dir}/resources/jvm11-server-options/cassandra/jvm11-server-options-cassandra-4.0.0.edn', 'cassandra')
+    gen.parse_file(F'{cass_definitions_dir}/resources/jvm-server-options/cassandra/jvm-server-options-cassandra-4.0.0.edn', 'cassandra')
     gen.write_finder()
