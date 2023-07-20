@@ -8,7 +8,7 @@ import (
 	"github.com/burmanm/definitions-parser/pkg/types"
 )
 
-var jvm11_server_options = map[string]types.Metadata{
+var Jvm11ServerOptions = map[string]types.Metadata{
 	"-Djdk.attach.allowAttachSelf=true":          {Key: "jdk_attach_allow_attach_self", BuilderType: types.BooleanBuilder},
 	"-Dio.netty.tryReflectionSetAccessible=true": {Key: "io_netty_try_reflection_set_accessible", BuilderType: types.BooleanBuilder},
 	"-XX:G1RSetUpdatingPauseTimePercent":         {Key: "g1r_set_updating_pause_time_percent", BuilderType: types.IntegerBuilder},
@@ -17,7 +17,7 @@ var jvm11_server_options = map[string]types.Metadata{
 	"-XX:ParallelGCThreads":                      {Key: "parallel_gc_threads", BuilderType: types.IntegerBuilder},
 	"-XX:ConcGCThreads":                          {Key: "conc_gc_threads", BuilderType: types.IntegerBuilder},
 }
-var jvm11_server_optionsPrefix = map[string]types.Metadata{
+var Jvm11ServerOptionsPrefix = map[string]types.Metadata{
 	"jdk_attach_allow_attach_self":           {Key: "-Djdk.attach.allowAttachSelf=true", BuilderType: types.BooleanBuilder, ValueType: types.StaticConstant},
 	"io_netty_try_reflection_set_accessible": {Key: "-Dio.netty.tryReflectionSetAccessible=true", BuilderType: types.BooleanBuilder, ValueType: types.StaticConstant},
 	"g1r_set_updating_pause_time_percent":    {Key: "-XX:G1RSetUpdatingPauseTimePercent", BuilderType: types.IntegerBuilder, ValueType: types.StringValue},
@@ -29,5 +29,5 @@ var jvm11_server_optionsPrefix = map[string]types.Metadata{
 }
 
 const (
-	jvm11_server_optionsPrefixExp = ""
+	Jvm11ServerOptionsPrefixExp = ""
 )

@@ -8,7 +8,7 @@ import (
 	"github.com/burmanm/definitions-parser/pkg/types"
 )
 
-var jvm_server_options = map[string]types.Metadata{
+var JvmServerOptions = map[string]types.Metadata{
 	"-XX:+UnlockDiagnosticVMOptions":                       {Key: "unlock-diagnostic-vm-options", BuilderType: types.BooleanBuilder},
 	"-Dcassandra.available_processors":                     {Key: "cassandra_available_processors", BuilderType: types.IntegerBuilder},
 	"-Dcassandra.config":                                   {Key: "cassandra_config_directory", BuilderType: types.StringBuilder},
@@ -51,7 +51,7 @@ var jvm_server_options = map[string]types.Metadata{
 	"-Dcassandra.printHeapHistogramOnOutOfMemoryError":     {Key: "print_heap_histogram_on_out_of_memory_error", BuilderType: types.BooleanBuilder},
 	"-XX:+ExitOnOutOfMemoryError":                          {Key: "exit_on_out_of_memory_error", BuilderType: types.BooleanBuilder},
 }
-var jvm_server_optionsPrefix = map[string]types.Metadata{
+var JvmServerOptionsPrefix = map[string]types.Metadata{
 	"unlock-diagnostic-vm-options":                       {Key: "-XX:+UnlockDiagnosticVMOptions", BuilderType: types.BooleanBuilder, ValueType: types.StaticConstant},
 	"cassandra_available_processors":                     {Key: "-Dcassandra.available_processors", BuilderType: types.IntegerBuilder, ValueType: types.StringValue},
 	"cassandra_config_directory":                         {Key: "-Dcassandra.config", BuilderType: types.StringBuilder, ValueType: types.StringValue},
@@ -97,5 +97,5 @@ var jvm_server_optionsPrefix = map[string]types.Metadata{
 }
 
 const (
-	jvm_server_optionsPrefixExp = "^-Xss|^-Xms|^-Xmx"
+	JvmServerOptionsPrefixExp = "^-Xss|^-Xms|^-Xmx"
 )
