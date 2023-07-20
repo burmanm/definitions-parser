@@ -63,7 +63,7 @@ class Generator():
                             metaVal['suppress'] = True
 
                         proper_map[k.name] = metaVal
-                        reverse_map[constant] = metaVal
+                        reverse_map[constant_key] = metaVal
 
 
         try:

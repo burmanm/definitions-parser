@@ -9,12 +9,13 @@ import (
 )
 
 var jvm11_server_options = map[string]types.Metadata{
-	"None":                               {Key: "io_netty_try_reflection_set_accessible", BuilderType: types.BooleanBuilder},
-	"-XX:G1RSetUpdatingPauseTimePercent": {Key: "g1r_set_updating_pause_time_percent", BuilderType: types.IntegerBuilder},
-	"-XX:MaxGCPauseMillis":               {Key: "max_gc_pause_millis", BuilderType: types.IntegerBuilder},
-	"-XX:InitiatingHeapOccupancyPercent": {Key: "initiating_heap_occupancy_percent", BuilderType: types.IntegerBuilder},
-	"-XX:ParallelGCThreads":              {Key: "parallel_gc_threads", BuilderType: types.IntegerBuilder},
-	"-XX:ConcGCThreads":                  {Key: "conc_gc_threads", BuilderType: types.IntegerBuilder},
+	"-Djdk.attach.allowAttachSelf=true":          {Key: "jdk_attach_allow_attach_self", BuilderType: types.BooleanBuilder},
+	"-Dio.netty.tryReflectionSetAccessible=true": {Key: "io_netty_try_reflection_set_accessible", BuilderType: types.BooleanBuilder},
+	"-XX:G1RSetUpdatingPauseTimePercent":         {Key: "g1r_set_updating_pause_time_percent", BuilderType: types.IntegerBuilder},
+	"-XX:MaxGCPauseMillis":                       {Key: "max_gc_pause_millis", BuilderType: types.IntegerBuilder},
+	"-XX:InitiatingHeapOccupancyPercent":         {Key: "initiating_heap_occupancy_percent", BuilderType: types.IntegerBuilder},
+	"-XX:ParallelGCThreads":                      {Key: "parallel_gc_threads", BuilderType: types.IntegerBuilder},
+	"-XX:ConcGCThreads":                          {Key: "conc_gc_threads", BuilderType: types.IntegerBuilder},
 }
 var jvm11_server_optionsPrefix = map[string]types.Metadata{
 	"jdk_attach_allow_attach_self":           {Key: "-Djdk.attach.allowAttachSelf=true", BuilderType: types.BooleanBuilder, ValueType: types.StaticConstant},
