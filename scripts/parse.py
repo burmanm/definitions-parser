@@ -24,6 +24,7 @@ class Generator():
         regexp_prefixes = []
         reverse_map = {}
         proper_map = {}
+        ignored_list = []
 
         if isinstance(input, ImmutableDict):
             props = input.dict.get(Keyword("properties"))
@@ -35,6 +36,7 @@ class Generator():
 
                     if edn_type == 'list':
                         # Collection types do not interest us in this reverse operation
+                        ignored_list.append(k.name)
                         continue
 
                     static_constant = values.dict.get(Keyword('static_constant'))
@@ -64,7 +66,13 @@ class Generator():
 
                         proper_map[k.name] = metaVal
                         reverse_map[constant_key] = metaVal
+                    else:
+                        # Some of these options are no longer usable in 4.1 so they're ignored. We add manually some processing here to
+                        # ensure the property is supported
+                       ignored_list.append(k.name)
 
+        for key in ignored_list:
+            print(F'Ignored key: {key}')
 
         try:
             os.mkdir(F'{self._target_dir}')
@@ -98,6 +106,9 @@ class Generator():
 
                 value_type = "types.StaticConstant" if static_constant is not None else "types.SuppressedValue" if v['suppress'] else "types.StringValue"
                 generated.write(F'"{k}": {{Key: "{name}", BuilderType: {builder_type}, ValueType: {value_type} }},\n')
+
+            # Add manual items
+            generated.write(F'"garbage_collector": {{Key: "", BuilderType: types.StringBuilder, ValueType: types.TemplateValue }},\n')
 
             generated.write('}\n')
             generated.write(F"""

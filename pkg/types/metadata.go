@@ -12,6 +12,7 @@ const (
 	StaticConstant ValueType = iota
 	StringValue
 	SuppressedValue
+	TemplateValue
 )
 
 type BuilderType int

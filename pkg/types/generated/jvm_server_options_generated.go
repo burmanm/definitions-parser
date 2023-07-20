@@ -93,6 +93,7 @@ var jvm_server_optionsPrefix = map[string]types.Metadata{
 	"crash_on_out_of_memory_error":                       {Key: "-XX:+CrashOnOutOfMemoryError", BuilderType: types.BooleanBuilder, ValueType: types.StaticConstant},
 	"print_heap_histogram_on_out_of_memory_error":        {Key: "-Dcassandra.printHeapHistogramOnOutOfMemoryError", BuilderType: types.BooleanBuilder, ValueType: types.StringValue},
 	"exit_on_out_of_memory_error":                        {Key: "-XX:+ExitOnOutOfMemoryError", BuilderType: types.BooleanBuilder, ValueType: types.StaticConstant},
+	"garbage_collector":                                  {Key: "", BuilderType: types.StringBuilder, ValueType: types.TemplateValue},
 }
 
 const (

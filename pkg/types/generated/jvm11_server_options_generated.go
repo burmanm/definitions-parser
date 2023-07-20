@@ -25,6 +25,7 @@ var jvm11_server_optionsPrefix = map[string]types.Metadata{
 	"initiating_heap_occupancy_percent":      {Key: "-XX:InitiatingHeapOccupancyPercent", BuilderType: types.IntegerBuilder, ValueType: types.StringValue},
 	"parallel_gc_threads":                    {Key: "-XX:ParallelGCThreads", BuilderType: types.IntegerBuilder, ValueType: types.StringValue},
 	"conc_gc_threads":                        {Key: "-XX:ConcGCThreads", BuilderType: types.IntegerBuilder, ValueType: types.StringValue},
+	"garbage_collector":                      {Key: "", BuilderType: types.StringBuilder, ValueType: types.TemplateValue},
 }
 
 const (
